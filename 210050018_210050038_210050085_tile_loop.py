@@ -6,9 +6,10 @@
 from z3 import *
 import sys
 
-file = sys.argv[1]
-
-with open(file) as f:
+if (len(sys.argv) != 2):
+    print(f"Usage: {sys.argv[0]} <input_file>")
+    sys.exit(0)
+with open(sys.argv[1]) as f:
     n,T = [int(x) for x in next(f).split()]
     matrix = []
 
@@ -20,12 +21,12 @@ s = Solver()
 
 v = []
 moves = []
-for k in range(0, T + 1):
+for k in range(T + 1):
     T1 = []
-    for i in range(0, n):
+    for i in range(n):
         T2 = []
-        for j in range(0, n):
-            T2.append(Int(str(k) + '_' + str(i) + '_' + str(j)))
+        for j in range(n):
+            T2.append(Int(f'{k}_{i}_{j}'))
         T1.append(T2[:])
     v.append(T1)
 
@@ -35,25 +36,34 @@ for k in range(0, T):
     moves.append(Int(f'move_{k}'))
     s.add(moves[-1] >= 0, moves[-1] < 4 * n)
 
-x1=True
-x2=True
-for i in range(0, n):
-    for j in range(0, n):
+end = [True] * (T + 1)
+finished = [Bool(f'finished_{k}') for k in range(T + 1)]
+for i in range(n):
+    for j in range(n):
         s.add(v[0][i][j] == matrix[i][j])
-        x1 = And(x1, v[T-1][i][j] == n*i+j+1)
-        x2 = And(x2, v[T][i][j] == n*i+j+1)
+        for k in range(T + 1):
+            end[k] = And(end[k], v[k][i][j] == n*i+j+1)
 
-s.add(Or(x1, x2))
+for k in range(T + 1):
+    s.add(finished[k] == end[k])
 
-for k in range(0, T):
-    for j in range(0, n):
-        for w in range(0, n):
+s.add(Or(*tuple(end)))
+
+for k in range(T):
+    for j in range(n):
+        for w in range(n):
+            # left
             s.add(Implies(And(moves[k] % 4 == 0, moves[k] / 4 == w), v[k][j][w] == v[k + 1][(j - 1) % n][w]))
+            # right
             s.add(Implies(And(moves[k] % 4 == 1, moves[k] / 4 == w), v[k][j][w] == v[k + 1][(j + 1) % n][w]))
+            # up
             s.add(Implies(And(moves[k] % 4 == 2, moves[k] / 4 == w), v[k][w][j] == v[k + 1][w][(j - 1) % n]))
+            # down
             s.add(Implies(And(moves[k] % 4 == 3, moves[k] / 4 == w), v[k][w][j] == v[k + 1][w][(j + 1) % n]))
             
+            # left/right unmodified rows
             s.add(Implies(And(Or(moves[k] % 4 == 0, moves[k] % 4 == 1), moves[k] / 4 != w), v[k][j][w] == v[k + 1][j][w]))
+            # up/down unmodified columns
             s.add(Implies(And(Or(moves[k] % 4 == 2, moves[k] % 4 == 3), moves[k] / 4 != w), v[k][w][j] == v[k + 1][w][j]))
 
 x = s.check()
@@ -63,6 +73,22 @@ if x == sat:
     MNAMES = 'udlr'
     m = s.model()
     # Output the moves
-    for k in range(0, T):
+    total_moves = 0
+    for k in range(T + 1):
+        if (m[finished[k]]):
+            total_moves = k
+            break
+    output = []
+    for k in range(total_moves):
         x = m[moves[k]].as_long()
-        print(x // 4, MNAMES[x % 4], sep='')
+        output.append((x // 4, x % 4))
+    i = 1
+    while (i < len(output)):
+        if (output[i - 1][0] == output[i][0] and ((output[i - 1][1] + output[i][1]) % 4 == 1)):
+            output = output[:i - 1] + output[i + 1:]
+            if (i >= 2):
+                i -= 2
+                continue
+        i += 1
+    for m in output:
+        print(m[0], MNAMES[m[1]], sep='')
