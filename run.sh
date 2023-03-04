@@ -17,7 +17,7 @@ PY=python3
 
 TEST=test
 if [ $# -eq 1 ]; then
-    if [ -e $1/input.txt ] && [ -e $1/specimen.txt ]; then
+    if [ -e $1/input.txt ]; then
         TEST=$1
     else
         echo "Invalid test files in dir \"$1\""
@@ -37,7 +37,7 @@ if [ $# -eq 3 ]; then
     $PY generator.py $1 $2 $3 $INPUT | tail -n +3 > $SPECIMEN
 fi
 
-$PY $CODE $INPUT > $OUTPUT
+time $PY $CODE $INPUT > $OUTPUT
 
 X=$(head -1 $OUTPUT)
 Y=$(cat $SPECIMEN)
