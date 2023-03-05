@@ -53,34 +53,60 @@ for k in range(T - 1):
     for j in range(n):
         for w in range(n):
             # left
-            s.add(Implies(And(moves[k] % 4 == 0, moves[k] / 4 == w), And(v[k][j][w] == v[k + 1][(j - 1) % n][w], Implies(Or(moves[k + 1] % 4 == 0, moves[k + 1] % 4 == 1), moves[k + 1] / 4 >= w))))
+            #                        a               b                                       c                                               d                       e                       f
+            #s.add(Implies(And(moves[k] % 4 == 0, moves[k] / 4 == w), And(v[k][j][w] == v[k + 1][(j - 1) % n][w], Implies(Or(moves[k + 1] % 4 == 0, moves[k + 1] % 4 == 1), moves[k + 1] / 4 >= w))))
+            s.add ( Or( moves[k] % 4 != 0 , moves[k] / 4 != w , v[k][j][w] == v[k + 1][(j - 1) % n][w] ) )
+            s.add ( Or(moves[k] % 4 != 0 , moves[k] / 4 != w , moves[k + 1] / 4 >= w, moves[k + 1] % 4 != 0 ) )
+            s.add ( Or(moves[k] % 4 != 0 , moves[k] / 4 != w , moves[k + 1] / 4 >= w, moves[k + 1] % 4 != 1 ) )
             # right
-            s.add(Implies(And(moves[k] % 4 == 1, moves[k] / 4 == w),  And(v[k][j][w] == v[k + 1][(j + 1) % n][w], Implies(Or(moves[k + 1] % 4 == 0, moves[k + 1] % 4 == 1), moves[k + 1] / 4 >= w))))
+            # s.add(Implies(And(moves[k] % 4 == 1, moves[k] / 4 == w),  And(v[k][j][w] == v[k + 1][(j + 1) % n][w], Implies(Or(moves[k + 1] % 4 == 0, moves[k + 1] % 4 == 1), moves[k + 1] / 4 >= w))))
+            s.add( Or( moves[k] % 4 != 1 , moves[k] / 4 != w , v[k][j][w] == v[k + 1][(j + 1) % n][w] ) )
+            s.add ( Or(moves[k] % 4 != 1 , moves[k] / 4 != w , moves[k + 1] / 4 >= w, moves[k + 1] % 4 != 0 ) )
+            s.add ( Or(moves[k] % 4 != 1 , moves[k] / 4 != w , moves[k + 1] / 4 >= w, moves[k + 1] % 4 != 1 ) )
             # up
-            s.add(Implies(And(moves[k] % 4 == 2, moves[k] / 4 == w), And(v[k][w][j] == v[k + 1][w][(j - 1) % n], Implies(Or(moves[k + 1] % 4 == 2, moves[k + 1] % 4 == 3), moves[k + 1] / 4 >= w))))
+            #                        a               b                                       c                                               d                       e                       f
+            # s.add(Implies(And(moves[k] % 4 == 2, moves[k] / 4 == w), And(v[k][w][j] == v[k + 1][w][(j - 1) % n], Implies(Or(moves[k + 1] % 4 == 2, moves[k + 1] % 4 == 3), moves[k + 1] / 4 >= w))))
+            s.add( Or( moves[k] % 4 != 2 , moves[k] / 4 != w , v[k][w][j] == v[k + 1][w][(j - 1) % n]  ) )
+            s.add ( Or ( moves[k] % 4 != 2 , moves[k] / 4 != w ,moves[k + 1] / 4 >= w , moves[k + 1] % 4 != 2  ) )
+            s.add ( Or ( moves[k] % 4 != 2 , moves[k] / 4 != w ,moves[k + 1] / 4 >= w , moves[k + 1] % 4 != 3 ) ) 
             # down
-            s.add(Implies(And(moves[k] % 4 == 3, moves[k] / 4 == w), And(v[k][w][j] == v[k + 1][w][(j + 1) % n], Implies(Or(moves[k + 1] % 4 == 2, moves[k + 1] % 4 == 3), moves[k + 1] / 4 >= w))))
-            
+            # s.add(Implies(And(moves[k] % 4 == 3, moves[k] / 4 == w), And(v[k][w][j] == v[k + 1][w][(j + 1) % n], Implies(Or(moves[k + 1] % 4 == 2, moves[k + 1] % 4 == 3), moves[k + 1] / 4 >= w))))
+            s.add( Or( moves[k] % 4 != 3 , moves[k] / 4 != w , v[k][w][j] == v[k + 1][w][(j + 1) % n]  ) )
+            s.add ( Or ( moves[k] % 4 != 3 , moves[k] / 4 != w ,moves[k + 1] / 4 >= w , moves[k + 1] % 4 != 2  ) )
+            s.add ( Or ( moves[k] % 4 != 3 , moves[k] / 4 != w ,moves[k + 1] / 4 >= w , moves[k + 1] % 4 != 3 ) ) 
+
             # left/right unmodified rows
-            s.add(Implies(And(Or(moves[k] % 4 == 0, moves[k] % 4 == 1), moves[k] / 4 != w), v[k][j][w] == v[k + 1][j][w]))
+            # s.add(Implies(And(Or(moves[k] % 4 == 0, moves[k] % 4 == 1), moves[k] / 4 != w), v[k][j][w] == v[k + 1][j][w]))
+            s.add( Or( moves[k] % 4 != 0, moves[k] / 4 == w , v[k][j][w] == v[k + 1][j][w] ) )
+            s.add( Or( moves[k] % 4 != 1 , moves[k] / 4 == w , v[k][j][w] == v[k + 1][j][w]) )
             # up/down unmodified columns
-            s.add(Implies(And(Or(moves[k] % 4 == 2, moves[k] % 4 == 3), moves[k] / 4 != w), v[k][w][j] == v[k + 1][w][j]))
+            # s.add(Implies(And(Or(moves[k] % 4 == 2, moves[k] % 4 == 3), moves[k] / 4 != w), v[k][w][j] == v[k + 1][w][j]))
+            s.add ( Or ( moves[k] % 4 != 2 ,  moves[k] / 4 == w,v[k][w][j] == v[k + 1][w][j]  ))
+            s.add ( Or ( moves[k] % 4 != 3 , moves[k] / 4 == w , v[k][w][j] == v[k + 1][w][j]))
 
 for j in range(n):
     for w in range(n):
 	    # left
-        s.add(Implies(And(moves[T - 1] % 4 == 0, moves[T - 1] / 4 == w), v[T - 1][j][w] == v[T - 1 + 1][(j - 1) % n][w]))
+        # s.add(Implies(And(moves[T - 1] % 4 == 0, moves[T - 1] / 4 == w), v[T - 1][j][w] == v[T - 1 + 1][(j - 1) % n][w]))
+        s.add ( Or(  moves[T - 1] % 4 != 0 , moves[T - 1] / 4 != w , v[T - 1][j][w] == v[T - 1 + 1][(j - 1) % n][w] ) )
         # right
-        s.add(Implies(And(moves[T - 1] % 4 == 1, moves[T - 1] / 4 == w),  v[T - 1][j][w] == v[T - 1 + 1][(j + 1) % n][w]))
+        # s.add(Implies(And(moves[T - 1] % 4 == 1, moves[T - 1] / 4 == w),  v[T - 1][j][w] == v[T - 1 + 1][(j + 1) % n][w]))
+        s.add ( Or(  moves[T - 1] % 4 != 1 , moves[T - 1] / 4 != w , v[T - 1][j][w] == v[T - 1 + 1][(j - 1) % n][w] ) )
         # up
-        s.add(Implies(And(moves[T - 1] % 4 == 2, moves[T - 1] / 4 == w), v[T - 1][w][j] == v[T - 1 + 1][w][(j - 1) % n]))
+        # s.add(Implies(And(moves[T - 1] % 4 == 2, moves[T - 1] / 4 == w), v[T - 1][w][j] == v[T - 1 + 1][w][(j - 1) % n]))
+        s.add ( Or(  moves[T - 1] % 4 != 2 , moves[T - 1] / 4 != w , v[T - 1][w][j] == v[T - 1 + 1][w][(j - 1) % n] ) )
         # down
-        s.add(Implies(And(moves[T - 1] % 4 == 3, moves[T - 1] / 4 == w), v[T - 1][w][j] == v[T - 1 + 1][w][(j + 1) % n]))
+        # s.add(Implies(And(moves[T - 1] % 4 == 3, moves[T - 1] / 4 == w), v[T - 1][w][j] == v[T - 1 + 1][w][(j + 1) % n]))
+        s.add ( Or(  moves[T - 1] % 4 != 3 , moves[T - 1] / 4 != w , v[T - 1][w][j] == v[T - 1 + 1][w][(j - 1) % n] ) )
         
         # left/right unmodified rows
-        s.add(Implies(And(Or(moves[T - 1] % 4 == 0, moves[T - 1] % 4 == 1), moves[T - 1] / 4 != w), v[T - 1][j][w] == v[T - 1 + 1][j][w]))
-        # up/down unmodified columns
-        s.add(Implies(And(Or(moves[T - 1] % 4 == 2, moves[T - 1] % 4 == 3), moves[T - 1] / 4 != w), v[T - 1][w][j] == v[T - 1 + 1][w][j]))
+        # s.add(Implies(And(Or(moves[T - 1] % 4 == 0, moves[T - 1] % 4 == 1), moves[T - 1] / 4 != w), v[T - 1][j][w] == v[T - 1 + 1][j][w]))
+        s.add( Or (moves[T - 1] / 4 == w, v[T - 1][j][w] == v[T - 1 + 1][j][w], moves[T - 1] % 4 != 0) )
+        s.add( Or (moves[T - 1] / 4 == w, v[T - 1][j][w] == v[T - 1 + 1][j][w], moves[T - 1] % 4 != 1) )        
+        # up/down unmodified column
+        # s.add(Implies(And(Or(moves[T - 1] % 4 == 2, moves[T - 1] % 4 == 3), moves[T - 1] / 4 != w), v[T - 1][w][j] == v[T - 1 + 1][w][j]))
+        s.add( Or (moves[T - 1] / 4 == w, v[T - 1][w][j] == v[T - 1 + 1][w][j], moves[T - 1] % 4 != 2) )
+        s.add( Or (moves[T - 1] / 4 == w, v[T - 1][w][j] == v[T - 1 + 1][w][j], moves[T - 1] % 4 != 3) )
 
 x = s.check()
 print(x)
