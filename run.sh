@@ -58,4 +58,7 @@ elif [ "$Y" = "unsat" ]; then
     echo "Given solution is CORRECT"
 else
     echo "Output is $X"
+    if [ "$X" = "sat" ]; then
+        $PY verifier.py $INPUT $OUTPUT
+    fi
 fi

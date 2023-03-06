@@ -33,8 +33,8 @@ for k in range(T + 1):
 for k in range(0, T):
     # 0->u, 1->d, 2->l, 3->r
     # move = 4 * index + (u|d|l|r)
-    moves.append(Int(f"move_{k}"))
-    s.add(moves[-1] >= 0, moves[-1] < 4 * n)
+    moves.append((Int(f"move_{k}"), Int(f"index_{k}")))
+    s.add(moves[-1][0] >= 0, moves[-1][0] < 4, moves[-1][1] >= 0, moves[-1][1] < n)
 
 end = [True] * (T + 1)
 finished = [Bool(f"finished_{k}") for k in range(T + 1)]
@@ -58,25 +58,25 @@ for k in range(T - 1):
             # ( moves[k] is <w>u ) => ( ( v[k][j][w] == v[k+1][(j-1)%n][w] ) and ( ( moves[k+1] is <z>u or <z>d ) => ( z >= w ) ) )
             s.add(
                 Or(
-                    moves[k] % 4 != 0,
-                    moves[k] / 4 != w,
+                    moves[k][0] != 0,
+                    moves[k][1] != w,
                     v[k][j][w] == v[k + 1][(j - 1) % n][w],
                 )
             )
             s.add(
                 Or(
-                    moves[k] % 4 != 0,
-                    moves[k] / 4 != w,
-                    moves[k + 1] / 4 >= w,
-                    moves[k + 1] % 4 != 0,
+                    moves[k][0] != 0,
+                    moves[k][1] != w,
+                    moves[k + 1][1] >= w,
+                    moves[k + 1][0] != 0,
                 )
             )
             s.add(
                 Or(
-                    moves[k] % 4 != 0,
-                    moves[k] / 4 != w,
-                    moves[k + 1] / 4 >= w,
-                    moves[k + 1] % 4 != 1,
+                    moves[k][0] != 0,
+                    moves[k][1] != w,
+                    moves[k + 1][1] >= w,
+                    moves[k + 1][0] != 1,
                 )
             )
 
@@ -84,25 +84,25 @@ for k in range(T - 1):
             # ( moves[k] is <w>d ) => ( ( v[k][j][w] == v[k+1][(j+1)%n][w] ) and ( ( moves[k+1] is <z>u or <z>d ) => ( z >= w ) ) )
             s.add(
                 Or(
-                    moves[k] % 4 != 1,
-                    moves[k] / 4 != w,
+                    moves[k][0] != 1,
+                    moves[k][1] != w,
                     v[k][j][w] == v[k + 1][(j + 1) % n][w],
                 )
             )
             s.add(
                 Or(
-                    moves[k] % 4 != 1,
-                    moves[k] / 4 != w,
-                    moves[k + 1] / 4 >= w,
-                    moves[k + 1] % 4 != 0,
+                    moves[k][0] != 1,
+                    moves[k][1] != w,
+                    moves[k + 1][1] >= w,
+                    moves[k + 1][0] != 0,
                 )
             )
             s.add(
                 Or(
-                    moves[k] % 4 != 1,
-                    moves[k] / 4 != w,
-                    moves[k + 1] / 4 >= w,
-                    moves[k + 1] % 4 != 1,
+                    moves[k][0] != 1,
+                    moves[k][1] != w,
+                    moves[k + 1][1] >= w,
+                    moves[k + 1][0] != 1,
                 )
             )
 
@@ -110,25 +110,25 @@ for k in range(T - 1):
             # ( moves[k] is <w>l ) => ( ( v[k][w][j] == v[k+1][w][(j-1)%n] ) and ( ( moves[k+1] is <z>l or <z>r ) => ( z >= w ) ) )
             s.add(
                 Or(
-                    moves[k] % 4 != 2,
-                    moves[k] / 4 != w,
+                    moves[k][0] != 2,
+                    moves[k][1] != w,
                     v[k][w][j] == v[k + 1][w][(j - 1) % n],
                 )
             )
             s.add(
                 Or(
-                    moves[k] % 4 != 2,
-                    moves[k] / 4 != w,
-                    moves[k + 1] / 4 >= w,
-                    moves[k + 1] % 4 != 2,
+                    moves[k][0] != 2,
+                    moves[k][1] != w,
+                    moves[k + 1][1] >= w,
+                    moves[k + 1][0] != 2,
                 )
             )
             s.add(
                 Or(
-                    moves[k] % 4 != 2,
-                    moves[k] / 4 != w,
-                    moves[k + 1] / 4 >= w,
-                    moves[k + 1] % 4 != 3,
+                    moves[k][0] != 2,
+                    moves[k][1] != w,
+                    moves[k + 1][1] >= w,
+                    moves[k + 1][0] != 3,
                 )
             )
 
@@ -136,44 +136,44 @@ for k in range(T - 1):
             # ( moves[k] is <w>r ) => ( ( v[k][w][j] == v[k+1][w][(j+1)%n] ) and ( ( moves[k+1] is <z>l or <z>r ) => ( z >= w ) ) )
             s.add(
                 Or(
-                    moves[k] % 4 != 3,
-                    moves[k] / 4 != w,
+                    moves[k][0] != 3,
+                    moves[k][1] != w,
                     v[k][w][j] == v[k + 1][w][(j + 1) % n],
                 )
             )
             s.add(
                 Or(
-                    moves[k] % 4 != 3,
-                    moves[k] / 4 != w,
-                    moves[k + 1] / 4 >= w,
-                    moves[k + 1] % 4 != 2,
+                    moves[k][0] != 3,
+                    moves[k][1] != w,
+                    moves[k + 1][1] >= w,
+                    moves[k + 1][0] != 2,
                 )
             )
             s.add(
                 Or(
-                    moves[k] % 4 != 3,
-                    moves[k] / 4 != w,
-                    moves[k + 1] / 4 >= w,
-                    moves[k + 1] % 4 != 3,
+                    moves[k][0] != 3,
+                    moves[k][1] != w,
+                    moves[k + 1][1] >= w,
+                    moves[k + 1][0] != 3,
                 )
             )
 
             # up/down unmodified rows
             # ( moves[k] is <w>u or <w>d and x != w ) => ( v[k][j][x] == v[k+1][j][x] )
             s.add(
-                Or(moves[k] % 4 != 0, moves[k] / 4 == w, v[k][j][w] == v[k + 1][j][w])
+                Or(moves[k][0] != 0, moves[k][1] == w, v[k][j][w] == v[k + 1][j][w])
             )
             s.add(
-                Or(moves[k] % 4 != 1, moves[k] / 4 == w, v[k][j][w] == v[k + 1][j][w])
+                Or(moves[k][0] != 1, moves[k][1] == w, v[k][j][w] == v[k + 1][j][w])
             )
 
             # left/right unmodified columns
             # ( moves[k] is <w>l or <w>r and x != w ) => ( v[k][j][x] == v[k+1][j][x] )
             s.add(
-                Or(moves[k] % 4 != 2, moves[k] / 4 == w, v[k][w][j] == v[k + 1][w][j])
+                Or(moves[k][0] != 2, moves[k][1] == w, v[k][w][j] == v[k + 1][w][j])
             )
             s.add(
-                Or(moves[k] % 4 != 3, moves[k] / 4 == w, v[k][w][j] == v[k + 1][w][j])
+                Or(moves[k][0] != 3, moves[k][1] == w, v[k][w][j] == v[k + 1][w][j])
             )
 
 for j in range(n):
@@ -184,8 +184,8 @@ for j in range(n):
         # ( moves[T-1] is <w>u ) => ( v[T-1][j][w] == v[T][(j-1)%n][w] )
         s.add(
             Or(
-                moves[T - 1] % 4 != 0,
-                moves[T - 1] / 4 != w,
+                moves[T - 1][0] != 0,
+                moves[T - 1][1] != w,
                 v[T - 1][j][w] == v[T][(j - 1) % n][w],
             )
         )
@@ -194,8 +194,8 @@ for j in range(n):
         # ( moves[T-1] is <w>d ) => ( v[T-1][j][w] == v[T][(j+1)%n][w] )
         s.add(
             Or(
-                moves[T - 1] % 4 != 1,
-                moves[T - 1] / 4 != w,
+                moves[T - 1][0] != 1,
+                moves[T - 1][1] != w,
                 v[T - 1][j][w] == v[T][(j + 1) % n][w],
             )
         )
@@ -204,8 +204,8 @@ for j in range(n):
         # ( moves[T-1] is <w>l ) => ( v[T-1][w][j] == v[T][w][(j-1)%n] )
         s.add(
             Or(
-                moves[T - 1] % 4 != 2,
-                moves[T - 1] / 4 != w,
+                moves[T - 1][0] != 2,
+                moves[T - 1][1] != w,
                 v[T - 1][w][j] == v[T][w][(j - 1) % n],
             )
         )
@@ -214,8 +214,8 @@ for j in range(n):
         # ( moves[T-1] is <w>r ) => ( v[T-1][w][j] == v[T][w][(j+1)%n] )
         s.add(
             Or(
-                moves[T - 1] % 4 != 3,
-                moves[T - 1] / 4 != w,
+                moves[T - 1][0] != 3,
+                moves[T - 1][1] != w,
                 v[T - 1][w][j] == v[T][w][(j + 1) % n],
             )
         )
@@ -224,16 +224,16 @@ for j in range(n):
         # ( moves[k] is <w>u or <w>d and x != w ) => ( v[k][j][x] == v[k+1][j][x] )
         s.add(
             Or(
-                moves[T - 1] / 4 == w,
+                moves[T - 1][1] == w,
                 v[T - 1][j][w] == v[T][j][w],
-                moves[T - 1] % 4 != 0,
+                moves[T - 1][0] != 0,
             )
         )
         s.add(
             Or(
-                moves[T - 1] / 4 == w,
+                moves[T - 1][1] == w,
                 v[T - 1][j][w] == v[T][j][w],
-                moves[T - 1] % 4 != 1,
+                moves[T - 1][0] != 1,
             )
         )
 
@@ -241,16 +241,16 @@ for j in range(n):
         # ( moves[k] is <w>l or <w>r and x != w ) => ( v[k][x][j] == v[k+1][x][j] )
         s.add(
             Or(
-                moves[T - 1] / 4 == w,
+                moves[T - 1][1] == w,
                 v[T - 1][w][j] == v[T][w][j],
-                moves[T - 1] % 4 != 2,
+                moves[T - 1][0] != 2,
             )
         )
         s.add(
             Or(
-                moves[T - 1] / 4 == w,
+                moves[T - 1][1] == w,
                 v[T - 1][w][j] == v[T][w][j],
-                moves[T - 1] % 4 != 3,
+                moves[T - 1][0] != 3,
             )
         )
 
@@ -268,8 +268,9 @@ if x == sat:
             break
     output = []
     for k in range(total_moves):
-        x = m[moves[k]].as_long()
-        output.append((x // 4, x % 4))
+        move = m[moves[k][0]].as_long()
+        index = m[moves[k][1]].as_long()
+        output.append((index, move))
     i = 1
     while i < len(output):
         if (
